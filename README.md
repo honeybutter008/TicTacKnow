@@ -11,12 +11,10 @@ To develop and run Tic-Tac-Know, the primary dependencies are Python 3.x, Tkinte
 
 <------------------------ COMPATIBILITY INFORMATION --------------------------->
 
-Web Browsers: Compatible with modern web browsers including Google Chrome, Mozilla Firefox, Microsoft Edge, and Safari.
-
 Operating Systems: Runs on Windows, macOS, and Linux through the web browser.
 
 Desktop and Laptop: Requires a standard web browser with an internet connection.
 
 Mobile Devices: Accessible via mobile web browsers on iOS and Android, though optimal experience is on tablets and smartphones with larger screens.
 
-Browsers: Should be updated to the latest versions for the best experience and security.
+Browsers: Should be updated to the latest versions for the best experience and security, also it is compatible with any browers. 
