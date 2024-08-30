@@ -1,5 +1,5 @@
 # TicTacKnow_EpicTwist
-It is blend of strategic gameplay with the interactive, revealing nature of the Truth or Dare prompts, encapsulating the unique aspect of the tic-tac-toe. Players aim to align three symbols in a row while earning points to unlock Truth or Dare challenges. The first to five points activates the mini-game, where the winner chooses between answering a question or completing a dare. This blend of strategy and social fun makes Tic-Tac-Know a fresh and engaging option for gatherings and casual play.
+Tic-Tac-Know is a creative and engaging twist on the classic game of Tic Tac Toe, designed to blend the simplicity of traditional gameplay with the excitement of Truth or Dare. It aims to enhance the traditional game with an element of surprise and personal engagement. By integrating Truth or Dare challenges, players are given the opportunity to share personal insights or take on amusing dares, making the game more dynamic and enjoyable. 
 
 <------------------------- GAME OVERVIEW --------------------------------------->
 
