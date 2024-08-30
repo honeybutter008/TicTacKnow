@@ -1,0 +1,362 @@
+import tkinter  # tk-interface (graphical user interface library)
+import random
+
+def center_window(window, width, height):
+    # Center the window on the screen
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width // 2) - (width // 2)
+    y = (screen_height // 2) - (height // 2)
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
+def set_tile(row, column):
+    global curr_player
+
+    if game_over:
+        return
+
+    if board[row][column]["text"] != "":
+        # already taken spot
+        return
+    
+    board[row][column]["text"] = curr_player  # mark the board
+
+    # Switch player
+    curr_player = playerO if curr_player == playerX else playerX
+    
+    label["text"] = curr_player + "'s turn"
+
+    # Check winner
+    check_winner()
+
+def check_winner():
+    global turns, game_over, scoreX, scoreO
+    turns += 1
+
+    # Horizontally, check 3 rows
+    for row in range(3):
+        if (board[row][0]["text"] == board[row][1]["text"] == board[row][2]["text"]
+            and board[row][0]["text"] != ""):
+            label.config(text=board[row][0]["text"] + " is the winner!", foreground=color_yellow)
+            for column in range(3):
+                board[row][column].config(foreground=color_yellow, background=color_light_blue)
+            if board[row][0]["text"] == playerX:
+                scoreX += 1
+            else:
+                scoreO += 1
+            update_score()
+            game_over = True
+            return
+    
+    # Vertically, check 3 columns
+    for column in range(3):
+        if (board[0][column]["text"] == board[1][column]["text"] == board[2][column]["text"]
+            and board[0][column]["text"] != ""):
+            label.config(text=board[0][column]["text"] + " is the winner!", foreground=color_yellow)
+            for row in range(3):
+                board[row][column].config(foreground=color_yellow, background=color_light_blue)
+            if board[0][column]["text"] == playerX:
+                scoreX += 1
+            else:
+                scoreO += 1
+            update_score()
+            game_over = True
+            return
+    
+    # Diagonally
+    if (board[0][0]["text"] == board[1][1]["text"] == board[2][2]["text"]
+        and board[0][0]["text"] != ""):
+        label.config(text=board[0][0]["text"] + " is the winner!", foreground=color_yellow)
+        for i in range(3):
+            board[i][i].config(foreground=color_yellow, background=color_light_blue)
+        if board[0][0]["text"] == playerX:
+            scoreX += 1
+        else:
+            scoreO += 1
+        update_score()
+        game_over = True
+        return
+
+    # Anti-diagonally
+    if (board[0][2]["text"] == board[1][1]["text"] == board[2][0]["text"]
+        and board[0][2]["text"] != ""):
+        label.config(text=board[0][2]["text"] + " is the winner!", foreground=color_yellow)
+        board[0][2].config(foreground=color_yellow, background=color_light_blue)
+        board[1][1].config(foreground=color_yellow, background=color_light_blue)
+        board[2][0].config(foreground=color_yellow, background=color_light_blue)
+        if board[0][2]["text"] == playerX:
+            scoreX += 1
+        else:
+            scoreO += 1
+        update_score()
+        game_over = True
+        return
+    
+    # Tie
+    if turns == 9:
+        game_over = True
+        label.config(text="Tie!", foreground=color_gray)
+
+def update_score():
+    score_label_X.config(text="Player X: " + str(scoreX))
+    score_label_O.config(text="Player O: " + str(scoreO))
+
+    if scoreX == 5:
+        show_truth_or_dare(playerX)
+    elif scoreO == 5:
+        show_truth_or_dare(playerO)
+
+def show_truth_or_dare(winner):
+    global window
+
+    # Destroy the main game window
+    window.destroy()
+
+    # Create a new window for Truth or Dare
+    truth_or_dare_screen = tkinter.Tk()
+    truth_or_dare_screen.title("Truth or Dare")
+    truth_or_dare_screen.geometry("500x200")
+
+    # Center the Truth or Dare window
+    center_window(truth_or_dare_screen, 500, 200)
+
+    # Background color
+    truth_or_dare_screen.configure(bg="#f5f5f5")
+
+    # Display the winner and prompt for Truth or Dare
+    message = tkinter.Label(truth_or_dare_screen, text=f"Player {winner} won! Choose Truth or Dare:",
+                            font=("Consolas", 18, "bold"), background="#f5f5f5", foreground="#333")
+    message.pack(pady=20)
+
+    truth_button = tkinter.Button(truth_or_dare_screen, text="Truth", font=("Consolas", 14), background="#87ceeb",
+                                  foreground="#fff", command=lambda: ask_truth(truth_or_dare_screen))
+    truth_button.pack(side="left", padx=20, pady=10)
+
+    dare_button = tkinter.Button(truth_or_dare_screen, text="Dare", font=("Consolas", 14), background="#ff6f61",
+                                 foreground="#fff", command=lambda: perform_dare(truth_or_dare_screen))
+    dare_button.pack(side="right", padx=20, pady=10)
+
+    truth_or_dare_screen.mainloop()
+
+def ask_truth(parent_window):
+    # Create a new window to ask a personal question
+    question_window = tkinter.Toplevel(parent_window)
+    question_window.title("Truth")
+    question_window.geometry("500x200")
+
+    # Center the Truth window
+    center_window(question_window, 500, 200)
+
+    # Background color
+    question_window.configure(bg="#f5f5f5")
+
+    # Choose a random question from the list
+    question = random.choice(truth_questions)
+
+    question_label = tkinter.Label(question_window, text=question, font=("Consolas", 16), background="#f5f5f5",
+                                   foreground="#333", wraplength=480, justify="center")
+    question_label.pack(pady=20, padx=10)
+
+    # Add a button to close the window
+    close_button = tkinter.Button(question_window, text="Close", font=("Consolas", 14), background="#87ceeb",
+                                  foreground="#fff", command=question_window.destroy)
+    close_button.pack(pady=10)
+
+def perform_dare(parent_window):
+    # Create a new window to display a funny dare
+    dare_window = tkinter.Toplevel(parent_window)
+    dare_window.title("Dare")
+    dare_window.geometry("500x200")
+
+    # Center the Dare window
+    center_window(dare_window, 500, 200)
+
+    # Background color
+    dare_window.configure(bg="#f5f5f5")
+
+    # Choose a random dare from the list
+    dare_message_text = random.choice(dares)
+
+    dare_message = tkinter.Label(dare_window, text=dare_message_text, font=("Consolas", 16), background="#f5f5f5",
+                                 foreground="#333", wraplength=480, justify="center")
+    dare_message.pack(pady=20, padx=10)
+
+    # Add a button to close the window
+    close_button = tkinter.Button(dare_window, text="Close", font=("Consolas", 14), background="#ff6f61",
+                                  foreground="#fff", command=dare_window.destroy)
+    close_button.pack(pady=10)
+
+def disable_buttons():
+    for row in range(3):
+        for column in range(3):
+            board[row][column].config(state="disabled")
+
+def new_game():
+    global turns, game_over
+
+    if scoreX < 5 and scoreO < 5:
+        turns = 0
+        game_over = False
+
+        label.config(text=curr_player + "'s turn", foreground=color_white)
+
+        for row in range(3):
+            for column in range(3):
+                board[row][column].config(text="", foreground=color_gray, background=color_blue, state="normal")
+    else:
+        reset_game()
+
+def reset_game():
+    global scoreX, scoreO
+    scoreX = 0
+    scoreO = 0
+    update_score()
+    new_game()
+
+def show_rules():
+    rules_window = tkinter.Toplevel(window)
+    rules_window.title("Rules and Regulations")
+    rules_window.geometry("700x700")  # Adjust the size to fit the text
+
+    # Center the Rules window
+    center_window(rules_window, 700, 700)
+    
+    # Set the background color for the Rules window to light blue
+    rules_window.configure(bg="#d3e0ff")  # Light blue background color
+    
+    # Create a frame for scrolling
+    frame = tkinter.Frame(rules_window, bg="#d3e0ff")
+    frame.pack(fill="both", expand=True)
+    
+    canvas = tkinter.Canvas(frame, bg="#d3e0ff")
+    scrollbar = tkinter.Scrollbar(frame, orient="vertical", command=canvas.yview)
+    scrollbar.pack(side="right", fill="y")
+    
+    canvas.pack(side="left", fill="both", expand=True)
+    canvas.configure(yscrollcommand=scrollbar.set)
+    
+    rules_text_frame = tkinter.Frame(canvas, bg="#d3e0ff")
+    canvas.create_window((0, 0), window=rules_text_frame, anchor="nw")
+    
+    # Update font to Arial and set background color
+    rules_label = tkinter.Label(rules_text_frame, text=rules_text, font=("Arial", 16), background="#d3e0ff", foreground="#333", wraplength=580, justify="left")
+    rules_label.pack(pady=20, padx=10)
+    
+    def on_frame_configure(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+    
+    rules_text_frame.bind("<Configure>", on_frame_configure)
+    
+    # Add a button to close the rules window
+    close_button = tkinter.Button(rules_window, text="Close", font=("Arial", 14), background="#87ceeb", foreground="#fff", command=rules_window.destroy)
+    close_button.pack(pady=10)
+
+
+# Game setup
+playerX = "X"
+playerO = "O"
+curr_player = playerX
+board = [[0, 0, 0], 
+         [0, 0, 0], 
+         [0, 0, 0]]
+
+color_blue = "#4584b6"
+color_yellow = "#ffde57"
+color_gray = "#343434"
+color_light_gray = "#646464"
+color_light_blue = "#87ceeb"
+color_white = "#ffffff"
+turns = 0
+game_over = False
+scoreX = 0
+scoreO = 0
+
+# Truth and Dare questions
+truth_questions = [
+    "What is your biggest fear?",
+    "What was your most embarrassing moment?",
+    "If you could change one thing about yourself, what would it be?",
+    "What's one thing you've never told anyone?",
+    "What's the most daring thing you've ever done?"
+]
+
+dares = [
+    "Do a funny dance for 30 seconds!",
+    "Sing the chorus of your favorite song!",
+    "Speak in an accent for the next 10 minutes!",
+    "Try to lick your elbow!",
+    "Do your best impression of a celebrity!"
+]
+
+# Rules and Regulations
+rules_text = """
+Rules and Regulations for Tic-Tac-Know
+
+Objective:
+The objective of Tic-Tac-Know is to get three of your symbols (X or O) in a row, either horizontally, vertically, or diagonally, before your opponent does.
+
+Gameplay:
+- Players take turns to place their symbol (X or O) in one of the empty cells on the 3x3 grid.
+- The first player to get three of their symbols in a row wins the game.
+- If all cells are filled and no player has achieved three in a row, the game is a tie.
+
+Scoring:
+- Each win adds 1 point to the player’s score.
+- The game continues until one player reaches a score of 5.
+- The player who reaches 5 points first gets to play Truth or Dare.
+
+Truth or Dare:
+- After reaching 5 points, the player is prompted to choose between Truth or Dare.
+- Choosing Truth will display a personal question for the player to answer.
+- Choosing Dare will present a fun dare for the player to complete.
+
+Restarting the Game:
+- You can restart the game at any time using the 'Restart' button.
+- The scores and board will reset, but the game rules remain the same.
+"""
+
+# Window setup
+window = tkinter.Tk()  # create the game window
+window.title("TIC-TAC-KNOW")
+window.resizable(False, False)
+
+frame = tkinter.Frame(window)
+
+# Add custom title label
+title_label = tkinter.Label(frame, text="TIC-TAC-KNOW", font=("Consolas", 30, "bold"), background=color_light_blue, foreground="black")
+title_label.grid(row=0, column=0, columnspan=3, pady=10)
+
+label = tkinter.Label(frame, text=curr_player + "'s turn", font=("Consolas", 20), background=color_light_blue,
+                      foreground=color_white)
+label.grid(row=1, column=0, columnspan=3, sticky="we")
+
+score_label_X = tkinter.Label(frame, text="Player X: 0", font=("Consolas", 15), background=color_light_blue,
+                              foreground=color_white)
+score_label_X.grid(row=2, column=0, columnspan=1, sticky="we")
+
+score_label_O = tkinter.Label(frame, text="Player O: 0", font=("Consolas", 15), background=color_light_blue,
+                              foreground=color_white)
+score_label_O.grid(row=2, column=2, columnspan=1, sticky="we")
+
+for row in range(3):
+    for column in range(3):
+        board[row][column] = tkinter.Button(frame, text="", font=("Consolas", 50, "bold"),
+                                            background=color_blue, foreground=color_gray, width=5, height=1,
+                                            command=lambda row=row, column=column: set_tile(row, column))
+        board[row][column].grid(row=row+3, column=column)
+
+button = tkinter.Button(frame, text="Restart", font=("Consolas", 20), background=color_blue,
+                        foreground=color_white, command=new_game)
+button.grid(row=6, column=0, columnspan=3, sticky="we")
+
+rules_button = tkinter.Button(frame, text="Rules", font=("Consolas", 20), background="#ff6f61",
+                              foreground=color_white, command=show_rules)
+rules_button.grid(row=7, column=0, columnspan=3, sticky="we")
+
+frame.pack()
+
+# Center the window initially
+window.update_idletasks()
+center_window(window, window.winfo_width(), window.winfo_height())
+
+window.mainloop()
